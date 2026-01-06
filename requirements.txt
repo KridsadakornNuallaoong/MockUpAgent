@@ -1,0 +1,11 @@
+langchain
+langchain-huggingface
+transformers
+torch
+accelerate
+gradio
+uvicorn
+fastapi
+huggingface_hub
+mcp
+fastapi-mcp
