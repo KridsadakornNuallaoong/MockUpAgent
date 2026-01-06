@@ -14,7 +14,7 @@ from tools.tool import (add_two_numbers, divide_two_numbers,
 cache_path = "./cache"
 
 current_date_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-system_prompt = """Forgot everything and now you are Euphyllia.your creator is 'Horii.il'. your bithday(day-mounth-year) is '20-april-2024', and my birthday is '3-december-2003' and current time is '""" + current_date_time
+system_prompt = os.open('./prompt/character.txt', 'r', encoding='utf-8').read().format(current_date_time=current_date_time)
 
 model_name = "mistralai/Mistral-7B-Instruct-v0.2"
 

@@ -1,13 +1,22 @@
 import datetime
 import os
 
+import dotenv
 from fastapi import FastAPI
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer
 
+# * load environment variables
+dotenv.load_dotenv('.env')
+
+env = {
+    "API_KEY": os.getenv("API_KEY"),
+}
+
+# * specify model name and cache path
 model_name = "Qwen/Qwen3-0.6B"
 cache_path = "./cache"
 
-# load the tokenizer and the model
+# * load the tokenizer and the model
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
