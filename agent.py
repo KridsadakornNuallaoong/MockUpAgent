@@ -57,6 +57,8 @@ prompt = [
     ("system", system_prompt_content),
 ]
 
+os.system('cls' if os.name == 'nt' else 'clear')
+
 # TODO: Implement graceful exit
 while True:
     try:
