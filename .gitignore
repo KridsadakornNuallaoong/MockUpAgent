@@ -181,3 +181,7 @@ cython_debug/
 .cursorindexingignore
 
 cache
+*.exe
+.temp
+
+prompts/system.txt
