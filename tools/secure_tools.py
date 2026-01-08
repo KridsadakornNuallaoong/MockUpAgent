@@ -22,3 +22,13 @@ def hash_string(raw_str: str) -> str:
     sha256_hash = hashlib.sha256()
     sha256_hash.update(raw_str.encode('utf-8'))
     return sha256_hash.hexdigest()
+
+@tool('dir_list', return_direct=False)
+def dir_list(path: str) -> str:
+    """Lists files and directories in the given path"""
+    import os
+    try:
+        items = os.listdir(path)
+        return "\n".join(items)
+    except Exception as e:
+        return str(e)

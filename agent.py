@@ -3,11 +3,13 @@ import os
 from langchain.agents import AgentState, create_agent
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.store.memory import InMemoryStore
 
 from model.custom_model_01 import llm
 from tools.general_tools import (add_two_numbers, divide_two_numbers,
                                  multiply_two_numbers, subtract_two_numbers)
-from tools.secure_tools import base64_decode, base64_encode, hash_string
+from tools.secure_tools import (base64_decode, base64_encode, dir_list,
+                                hash_string)
 from tools.time_tools import get_current_time
 
 # TODO: Load system prompt from file
@@ -32,9 +34,11 @@ agent = create_agent(
         add_two_numbers, 
         subtract_two_numbers, 
         multiply_two_numbers, 
-        divide_two_numbers
+        divide_two_numbers,
+        dir_list,
     ],
     state_schema=CustomAgentState,
+    store=InMemoryStore(),
     checkpointer=InMemorySaver(),
 )
 

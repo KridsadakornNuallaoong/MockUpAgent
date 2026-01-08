@@ -3,7 +3,8 @@ import unittest
 
 from tools.general_tools import (add_two_numbers, divide_two_numbers,
                                  multiply_two_numbers, subtract_two_numbers)
-from tools.secure_tools import base64_decode, base64_encode, hash_string
+from tools.secure_tools import (base64_decode, base64_encode, dir_list,
+                                hash_string)
 from tools.time_tools import get_current_time
 
 
@@ -89,6 +90,18 @@ class TestSecureTools(unittest.TestCase):
             self.assertEqual(hash_string.run(raw_str), expected)
             
     print("Hash String tests passed.\n")
+
+    def test_dir_list(self):
+        # This test assumes the current directory has at least this file
+        result = dir_list.run(".")
+        print("Directory List Result:\n", result)
+        self.assertNotEqual(len(result), 0)
+
+        result = dir_list.run("./tools")
+        print("Directory List Result:\n", result)
+        self.assertNotEqual(len(result), 0)
+
+    print("Directory List tests passed.\n")
 
 class TestTimeTools(unittest.TestCase):
     print("🕒 Testing Time Tools...")
