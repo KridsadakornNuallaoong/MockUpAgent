@@ -14,4 +14,5 @@ MockUpAgent is an MCP (Model Context Protocol) agentic RAG (Retrieval-Augmented 
 
 - **LangChain**: Framework for building LLM applications
 - **Hugging Face**: Pre-trained models and embeddings
+- **Ollama**: Local LLM inference engine for running models offline
 - **Model Context Protocol**: Standardized agent communication
