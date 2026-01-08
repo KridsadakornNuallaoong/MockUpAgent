@@ -1,6 +1,8 @@
 import os
 
-from langchain.agents import create_agent
+from langchain.agents import AgentState, create_agent
+from langchain_core.runnables import RunnableConfig
+from langgraph.checkpoint.memory import InMemorySaver
 
 from model.custom_model_01 import llm
 from tools.general_tools import (add_two_numbers, divide_two_numbers,
@@ -15,6 +17,10 @@ system_prompt_path = os.path.join(prompt_path, "system.txt")
 with open(system_prompt_path, "r") as f:
     system_prompt_content = f.read()
 
+# TODO: Create agent state for maintaining context
+class CustomAgentState(AgentState):
+    user_id: str = "default_user"
+    
 # TODO: Create agent without middleware and checkpointer for faster response during testing
 agent = create_agent(
     model=llm,
@@ -28,6 +34,8 @@ agent = create_agent(
         multiply_two_numbers, 
         divide_two_numbers
     ],
+    state_schema=CustomAgentState,
+    checkpointer=InMemorySaver(),
 )
 
 # agent = create_agent(
@@ -59,6 +67,13 @@ prompt = [
 
 os.system('cls' if os.name == 'nt' else 'clear')
 
+# TODO: RunnableConfig for threading
+config: RunnableConfig = {
+    "configurable": {
+        "thread_id": "1",
+    }
+}
+
 # TODO: Implement graceful exit
 while True:
     try:
@@ -70,8 +85,9 @@ while True:
 
         for chunk in agent.stream(
             {"messages": messages},
-            {'tool_choice': 'auto'},
+            config=config,
             stream_mode=["messages"],
+            # debug=True,
         ):
             # for step, data in chunk.items():
             #     print(f"step: {step}")

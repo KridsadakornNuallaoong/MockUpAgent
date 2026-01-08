@@ -13,3 +13,4 @@ hf_xet
 langchain-ollama
 ollama
 langchain-mcp-adapters
+langchain-core
