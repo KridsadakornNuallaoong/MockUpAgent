@@ -14,3 +14,8 @@ langchain-ollama
 ollama
 langchain-mcp-adapters
 langchain-core
+google-genai
+
+markdownify
+deepagents
+tavily-python

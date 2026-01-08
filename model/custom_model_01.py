@@ -7,6 +7,6 @@ llm = ChatOllama(
     temperature=0.1,
     num_predict=2048,
     disable_streaming=False,
-    num_gpu=1,
-    num_thread=8,
+    # num_gpu=1,
+    # num_thread=8,
 )
