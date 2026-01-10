@@ -12,7 +12,7 @@ from langchain.tools import tool
 from langchain_core.runnables import RunnableConfig
 from tavily import TavilyClient
 
-from model.custom_model_01 import llm, llm_Q
+from model.ollama.custom_model_01 import llm, llm_Q
 from research_agent.prompts import (RESEARCH_WORKFLOW_INSTRUCTIONS,
                                     RESEARCHER_INSTRUCTIONS,
                                     SUBAGENT_DELEGATION_INSTRUCTIONS)

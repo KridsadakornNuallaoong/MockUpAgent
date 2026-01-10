@@ -1,24 +1,29 @@
 
 # context decoder
-from langchain_core.messages import (AIMessageChunk, HumanMessageChunk,
-                                     SystemMessageChunk, ToolMessageChunk)
+import os
+
+from langchain_core.messages import (AIMessage, AIMessageChunk, AnyMessage,
+                                     ToolMessage)
 
 
-# create structured decoder for return
-class stream_context_decoder:
-    def __init__(self, chunk: tuple = (), title: str = ""):
-        self.chunk = chunk
-        self.title = title
+def output_to_file(time: str, messages_chunk: str, path_output: str) -> None:
+    os.makedirs(path_output, exist_ok=True)
+    with open(f"{path_output}/output_{time}.md", "a", encoding="utf-8") as f:
+        f.write(str(messages_chunk))
 
-def decode_message_chunk(chunk: tuple) -> str:
-    """Decode a message chunk into a string representation."""
-    if isinstance(chunk, AIMessageChunk):
-        return stream_context_decoder(chunk=chunk, title="AIMessageChunk")
-    elif isinstance(chunk, ToolMessageChunk):
-        return stream_context_decoder(chunk=chunk, title="ToolMessageChunk")
-    elif isinstance(chunk, HumanMessageChunk):
-        return stream_context_decoder(chunk=chunk, title="HumanMessageChunk")
-    elif isinstance(chunk, SystemMessageChunk):
-        return stream_context_decoder(chunk=chunk, title="SystemMessageChunk")
-    else:
-        return stream_context_decoder(chunk=chunk, title="UnknownChunk")
+def _render_message_chunk(token: AIMessageChunk, time: str, path_output: str) -> None:
+    if token.content:
+        messages_chunk = token.content
+        print(messages_chunk, end='', flush=True)
+        output_to_file(time, messages_chunk, path_output)
+    if token.additional_kwargs:
+        messages_chunk = token.additional_kwargs.get('reasoning_content', '')
+        print(messages_chunk, end='', flush=True)
+        output_to_file(time, messages_chunk, path_output)
+
+def _render_completed_message(message: AnyMessage) -> None:
+    if isinstance(message, AIMessage) and message.tool_calls:
+        print(f"\nTool calls: {message.tool_calls}")
+        print(f"Reason explain: {message.additional_kwargs.get('reasoning_content', '')}")
+    if isinstance(message, ToolMessage):
+        print(f"Tool response: {message.content}\n")

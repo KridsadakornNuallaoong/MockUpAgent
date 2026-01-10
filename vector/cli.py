@@ -1,23 +1,33 @@
+from os import getenv
+
+from langchain_core.documents import Document
+from langchain_core.vectorstores import InMemoryVectorStore
 from langchain_ollama import OllamaEmbeddings
 from langchain_qdrant import QdrantVectorStore
-from qdrant_client import QdrantClient
-from qdrant_client.http.models import Distance, VectorParams
 
-embeddings = OllamaEmbeddings()
+embeddings = OllamaEmbeddings(model="qwen3-embedding", base_url=getenv("Base_URL"))
 
-client = QdrantClient(
-    url="http://localhost:6333",
+url = getenv("Qdrant_url")
+docs = [
+]
+qdrant = QdrantVectorStore.from_documents(
+    docs,
+    embeddings,
+    url=url,
+    prefer_grpc=True,
+    collection_name="AgentRagCollection",
 )
 
-client.create_collection(
-    collection_name="helloworld",
-    vectors_config=VectorParams(size=3072, distance=Distance.COSINE),
-)
+vector_store = qdrant
 
-vector_store = QdrantVectorStore(
-    client=client,
-    collection_name="helloworld",
-    embedding=embeddings,
+doc = Document(
+    page_content="This is a sample document. 1",
+    metadata={"source": "sample_source.txt"}
 )
+vector_store.add_documents([doc])
 
-retriever = vector_store.as_retriever()
+print("Vector store initialized and sample document added.")
+
+res = vector_store.similarity_search("sample document", k=2)
+for r in res:
+    print(r.page_content, r.metadata)

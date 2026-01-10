@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 from typing import Union
 
+from dotenv import load_dotenv
 from langchain.agents import AgentState, create_agent
 from langchain.agents.structured_output import ToolStrategy
 from langchain_core.messages import (AIMessage, AIMessageChunk, AnyMessage,
@@ -10,18 +11,22 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.store.memory import InMemoryStore
 
-from model.custom_model_01 import llm
+from model.ollama.custom_model_01 import llm
 from research_agent.prompts import (RESEARCH_WORKFLOW_INSTRUCTIONS,
                                     RESEARCHER_INSTRUCTIONS,
                                     SUBAGENT_DELEGATION_INSTRUCTIONS)
 from research_agent.tools import tavily_search, think_tool
 from tools.general_tools import (add_two_numbers, divide_two_numbers,
                                  multiply_two_numbers, subtract_two_numbers)
+from tools.retriever_tools import (add_document_to_vector_store, get_embedding,
+                                   retrieve_similar_documents)
 from tools.secure_tools import (base64_decode, base64_encode, dir_list,
                                 hash_string)
 from tools.time_tools import get_current_time
-from utils.stream.context_decoder import (decode_message_chunk,
-                                          stream_context_decoder)
+from utils.stream.context_decoder import (_render_completed_message,
+                                          _render_message_chunk)
+
+load_dotenv(".env")
 
 # TODO: Load system prompt from file
 prompt_path = "./prompts"
@@ -62,6 +67,9 @@ agent = create_agent(
         dir_list,
         tavily_search,
         think_tool,
+        retrieve_similar_documents,
+        add_document_to_vector_store,
+        get_embedding,
     ],
     state_schema=CustomAgentState,
     store=InMemoryStore(),
@@ -83,29 +91,7 @@ time = ""
 message_chunk = ""
 path_output = "./output"
 
-def output_to_file(time: str, messages_chunk: str) -> None:
-    os.makedirs(path_output, exist_ok=True)
-    with open(f"{path_output}/output_{time}.md", "a", encoding="utf-8") as f:
-        f.write(str(messages_chunk))
-
-def _render_message_chunk(token: AIMessageChunk) -> None:
-    if token.content:
-        messages_chunk = token.content
-        print(messages_chunk, end='', flush=True)
-        output_to_file(time, messages_chunk)
-    if token.additional_kwargs:
-        messages_chunk = token.additional_kwargs.get('reasoning_content', '')
-        print(messages_chunk, end='', flush=True)
-        output_to_file(time, messages_chunk)
-
-def _render_completed_message(message: AnyMessage) -> None:
-    if isinstance(message, AIMessage) and message.tool_calls:
-        print(f"\nTool calls: {message.tool_calls}")
-        print(f"Reason explain: {message.additional_kwargs.get('reasoning_content', '')}")
-    if isinstance(message, ToolMessage):
-        print(f"Tool response: {message.content}\n")
-
-current_agent = "ResearchAgent"
+current_agent = ""
 # TODO: Implement graceful exit
 while True:
     try:
@@ -135,13 +121,12 @@ while True:
                         print(f"🤖 {this_agent}: ")  
                         current_agent = this_agent  
                 if isinstance(token, AIMessageChunk):
-                    _render_message_chunk(token)  
+                    _render_message_chunk(token, time, path_output)  
             if stream_mode == "updates":
                 for source, update in data.items():
-                    if source in ("model", "tools"):  # `source` captures node name
+                    if source in ("model", "tools"):
                         _render_completed_message(update["messages"][-1])  
-            
-        print("\n\n")
+        print("\n")
     
     except KeyboardInterrupt:
         print("\nExiting the chat.")
