@@ -4,7 +4,7 @@ from langchain.tools import tool
 
 
 # 1.Text to file tool
-@tool("text_to_file", return_direct=True)
+@tool("text_to_file", return_direct=False)
 def text_to_file(file_path: str, content: str) -> str:
     """Saves the given text content to a file at the specified path.
 
@@ -23,7 +23,7 @@ def text_to_file(file_path: str, content: str) -> str:
         return f"Error saving file at {file_path}: {str(e)}"
     
 # 2.File to text tool, define file type before reading
-@tool("file_to_text", return_direct=True)
+@tool("file_to_text", return_direct=False)
 def file_to_text(file_path: str) -> str:
     """Reads the content of a file at the specified path and returns it as text.
 

@@ -1,3 +1,5 @@
+import langchain_core
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_huggingface import ChatHuggingFace, HuggingFacePipeline
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
@@ -23,5 +25,11 @@ pipe = pipeline(
 )
 
 # TODO: create the HuggingFacePipeline and ChatHuggingFace llm
-llm = HuggingFacePipeline(pipeline=pipe)
-chat_model = ChatHuggingFace(llm=llm)
+n_pipe = HuggingFacePipeline(pipeline=pipe)
+llm = ChatHuggingFace(
+    pipeline=n_pipe,
+    model_name=model_name,
+    temperature=0.1,
+    max_output_tokens=512,
+    streaming=True,
+)

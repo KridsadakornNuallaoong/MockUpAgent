@@ -5,13 +5,13 @@ using Tavily for URL discovery and fetching full webpage content.
 """
 
 import httpx
-from langchain_core.tools import InjectedToolArg, tool
+from langchain.tools import InjectedToolArg, tool
+# from langchain_core.tools import InjectedToolArg, tool
 from markdownify import markdownify
 from tavily import TavilyClient
 from typing_extensions import Annotated, Literal
 
 tavily_client = TavilyClient(api_key="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")
-
 
 def fetch_webpage_content(url: str, timeout: float = 10.0) -> str:
     """Fetch and convert webpage content to markdown.
@@ -24,7 +24,7 @@ def fetch_webpage_content(url: str, timeout: float = 10.0) -> str:
         Webpage content as markdown
     """
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
     }
 
     try:
@@ -35,12 +35,12 @@ def fetch_webpage_content(url: str, timeout: float = 10.0) -> str:
         return f"Error fetching content from {url}: {str(e)}"
 
 
-@tool(parse_docstring=True)
+@tool
 def tavily_search(
     query: str,
     max_results: Annotated[int, InjectedToolArg] = 1,
     topic: Annotated[
-        Literal["general", "news", "finance"], InjectedToolArg
+        Literal["general", "news", "finance", "technology", "science", "health"], InjectedToolArg
     ] = "general",
 ) -> str:
     """Search the web for information on a given query.
@@ -72,12 +72,12 @@ def tavily_search(
         content = fetch_webpage_content(url)
 
         result_text = f"""## {title}
-**URL:** {url}
+            **URL:** {url}
 
-{content}
+            {content}
 
----
-"""
+            ---
+        """
         result_texts.append(result_text)
 
     # Format final response
@@ -88,7 +88,7 @@ def tavily_search(
     return response
 
 
-@tool(parse_docstring=True)
+@tool
 def think_tool(reflection: str) -> str:
     """Tool for strategic reflection on research progress and decision-making.
 

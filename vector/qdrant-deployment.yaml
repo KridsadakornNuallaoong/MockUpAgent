@@ -1,0 +1,103 @@
+# ================================
+# Persistent storage for Qdrant
+# ================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  # Name of the volume claim
+  name: qdrant-pvc
+spec:
+  # Access mode:
+  # ReadWriteOnce = mounted by one pod at a time
+  accessModes:
+    - ReadWriteOnce
+
+  # Requested storage size
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+# ================================
+# Qdrant Deployment
+# ================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Name of the deployment
+  name: qdrant
+spec:
+  # Number of Qdrant pods
+  # MUST be 1 for Deployment (no clustering)
+  replicas: 1
+
+  # Selector tells the Deployment which pods it manages
+  selector:
+    matchLabels:
+      app: qdrant
+
+  # Pod template
+  template:
+    metadata:
+      # Labels applied to the pod
+      labels:
+        app: qdrant
+    spec:
+      containers:
+        - name: qdrant
+
+          # Official Qdrant image
+          # Version is pinned for stability
+          image: qdrant/qdrant:latest
+
+          # Exposed container ports
+          ports:
+            # REST API + Web Dashboard
+            - containerPort: 6333
+
+            # gRPC API (faster clients)
+            - containerPort: 6334
+
+          # Mount persistent storage into container
+          volumeMounts:
+            - name: qdrant-storage
+
+              # This path is REQUIRED by Qdrant
+              mountPath: /qdrant/storage
+      volumes:
+        - name: qdrant-storage
+          persistentVolumeClaim:
+            claimName: qdrant-pvc
+
+---
+# ================================
+# Service to expose Qdrant
+# ================================
+apiVersion: v1
+kind: Service
+metadata:
+  # Name of the service
+  name: qdrant-service
+spec:
+  # Expose the service externally
+  type: LoadBalancer
+
+  # Selector to identify the pods
+  selector:
+    app: qdrant
+
+  # Ports to expose
+  ports:
+    # REST API + Web Dashboard
+    - name: rest
+      protocol: TCP
+      port: 6333
+      targetPort: 6333
+      nodePort: 30333
+
+    # gRPC API
+    - name: grpc
+      protocol: TCP
+      port: 6334
+      targetPort: 6334
+      nodePort: 30334

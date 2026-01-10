@@ -94,11 +94,11 @@ class TestSecureTools(unittest.TestCase):
     def test_dir_list(self):
         # This test assumes the current directory has at least this file
         result = dir_list.run(".")
-        print("Directory List Result:\n", result)
+        # print("Directory List Result:\n", result)
         self.assertNotEqual(len(result), 0)
 
         result = dir_list.run("./tools")
-        print("Directory List Result:\n", result)
+        # print("Directory List Result:\n", result)
         self.assertNotEqual(len(result), 0)
 
     print("Directory List tests passed.\n")
