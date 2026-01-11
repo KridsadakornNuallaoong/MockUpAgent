@@ -6,23 +6,18 @@ from vector.cli import embeddings, vector_store
 
 
 @tool
-def retrieve_similar_documents(query: str, k: int = 5) -> list[Document]:
-    """Retrieve similar documents from the vector store."""
-    results = vector_store.similarity_search(query, k=k)
-    return results
-
-@tool
-def add_document_to_vector_store(page_content: str, source: str) -> str:
-    """Add a new document to the vector store."""
-    doc = Document(
-        page_content=page_content,
-        metadata={"source": source}
-    )
-    vector_store.add_documents([doc])
-    return f"Document from {source} added to vector store."
-
-@tool
-def get_embedding(text: str) -> list[float]:
-    """Get the embedding vector for the given text."""
-    embedding_vector = embeddings.embed_query(text)
-    return embedding_vector
+def semantic_search(query: str, top_k: int = 5) -> list[Document]:
+    """
+        Retrieve documents similar to the query using semantic search.
+        Args:
+            query (str): The search query.
+            top_k (int): The number of top similar documents to retrieve.
+        
+        Returns:
+            list[Document]: A list of similar documents.
+    """
+    try:
+        results = vector_store.similarity_search(query, k=top_k)
+        return results
+    except Exception as e:
+        return [Document(page_content=f"Error during semantic search: {str(e)}")]

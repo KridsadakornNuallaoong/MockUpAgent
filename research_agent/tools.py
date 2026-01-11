@@ -40,7 +40,7 @@ def tavily_search(
     query: str,
     max_results: Annotated[int, InjectedToolArg] = 1,
     topic: Annotated[
-        Literal["general", "news", "finance", "technology", "science", "health"], InjectedToolArg
+        Literal["general", "news", "finance"], InjectedToolArg
     ] = "general",
 ) -> str:
     """Search the web for information on a given query.
