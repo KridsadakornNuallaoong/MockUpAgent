@@ -1,0 +1,28 @@
+{
+    "registry": {
+        "testserver": {
+            "transport": "http",
+            "url": "http://localhost:8001/mcp"
+        },
+        "playwright": {
+            "transport": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "mcp/playwright"
+            ]
+        },
+        "fetch": {
+            "transport": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "mcp/fetch"
+            ]
+        }
+    }
+}

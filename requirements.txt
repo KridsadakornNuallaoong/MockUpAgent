@@ -16,6 +16,8 @@ langchain-mcp-adapters
 langchain-core
 google-genai
 
+pyautogui
+
 # vector database clients
 qdrant-client
 langchain-qdrant

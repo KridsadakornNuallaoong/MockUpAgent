@@ -83,6 +83,22 @@ func handleMCP(w http.ResponseWriter, r *http.Request) {
 						"required": []string{"name"},
 					},
 				},
+				map[string]any{
+					"name":        "add",
+					"description": "Add two numbers",
+					"inputSchema": map[string]any{
+						"type": "object",
+						"properties": map[string]any{
+							"a": map[string]any{
+								"type": "number",
+							},
+							"b": map[string]any{
+								"type": "number",
+							},
+						},
+						"required": []string{"a", "b"},
+					},
+				},
 			},
 		}
 
@@ -93,12 +109,25 @@ func handleMCP(w http.ResponseWriter, r *http.Request) {
 		}
 		json.Unmarshal(req.Params, &p)
 
-		if p.Name == "hello" {
+		switch p.Name {
+		case "hello":
 			resp.Result = map[string]any{
 				"content": []any{
 					map[string]any{
 						"type": "text",
 						"text": fmt.Sprintf("Hello %s 👋 from MCP HTTP server", p.Arguments["name"]),
+					},
+				},
+			}
+		case "add":
+			a := p.Arguments["a"].(float64)
+			b := p.Arguments["b"].(float64)
+			sum := a + b
+			resp.Result = map[string]any{
+				"content": []any{
+					map[string]any{
+						"type": "text",
+						"text": fmt.Sprintf("The sum of %.2f and %.2f is %.2f", a, b, sum),
 					},
 				},
 			}

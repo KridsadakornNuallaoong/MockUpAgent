@@ -50,6 +50,7 @@ research_sub_agent = {
     "description": "Delegate research to the sub-agent researcher. The sub-agent is responsible for conducting in-depth research on specific topics as assigned by the main agent. It should utilize available tools to gather accurate and up-to-date information.",
     "system_prompt": RESEARCHER_INSTRUCTIONS.format(date=get_current_time.run("")),
     "tools": tools,
+    "model": llm,
 }
 
 
@@ -62,7 +63,7 @@ today is : {get_current_time.run("")}
 # TODO: Create agent state for maintaining context
 agent = create_deep_agent(
     model=llm,
-    tools=tools,
+    # tools=tools,
     system_prompt=research_instructions,
 )
 

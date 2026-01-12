@@ -17,6 +17,8 @@ vendor/
 
 # Go workspace file
 go.work
+go.mod
+go.sum
 
 # IDE specific files
 .idea/

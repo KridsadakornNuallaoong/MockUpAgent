@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 from datetime import datetime
 from typing import Union
@@ -13,13 +14,15 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.store.memory import InMemoryStore
 
+from mcp_cli import load_tools
 from model.ollama.custom_model_01 import llm
 from research_agent.prompts import (RESEARCH_WORKFLOW_INSTRUCTIONS,
                                     RESEARCHER_INSTRUCTIONS,
                                     SUBAGENT_DELEGATION_INSTRUCTIONS)
 from research_agent.tools import tavily_search, think_tool
 from tools.general_tools import (add_two_numbers, divide_two_numbers,
-                                 multiply_two_numbers, subtract_two_numbers)
+                                 get_weather, multiply_two_numbers,
+                                 subtract_two_numbers)
 from tools.retriever_tools import semantic_search
 from tools.secure_tools import (base64_decode, base64_encode, dir_list,
                                 hash_string)
@@ -29,13 +32,13 @@ from utils.stream.context_decoder import (_render_completed_message,
 
 
 async def main():
+    # load json from registry file
+    registry_file = "registry.json"
+    with open(registry_file, "r") as f:
+        registry = json.load(f)
+
     mcp_client = MultiServerMCPClient(
-        {
-            "hello": {
-                "transport": "http",
-                "url": "http://localhost:8001/mcp",
-            }
-        },
+        registry['registry']
     )
 
     tools = await mcp_client.get_tools()
@@ -53,8 +56,10 @@ async def main():
             tavily_search,
             think_tool,
             semantic_search,
+            get_weather,
         ]
     )
+    
     load_dotenv(".env")
 
     # TODO: Load system prompt from file
@@ -89,20 +94,6 @@ async def main():
     agent = create_agent(
         model=llm,
         tools=tools,
-        # tools=[
-        #     get_current_time, 
-        #     base64_encode, 
-        #     base64_decode, 
-        #     hash_string, 
-        #     add_two_numbers, 
-        #     subtract_two_numbers, 
-        #     multiply_two_numbers, 
-        #     divide_two_numbers,
-        #     dir_list,
-        #     tavily_search,
-        #     think_tool,
-        #     semantic_search,
-        # ],
         state_schema=CustomAgentState,
         store=store,
         checkpointer=checkpointer,
@@ -120,7 +111,7 @@ async def main():
     }
 
     time = ""
-    message_chunk = ""
+    # message_chunk = ""
     path_output = "./output"
 
     current_agent = ""
@@ -134,8 +125,8 @@ async def main():
                 raise KeyboardInterrupt
             
             time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-            user_message_log = f"[{time}] User: {user_input}\n"
-            full_message = ""
+            # user_message_log = f"[{time}] User: {user_input}\n"
+            # full_message = ""
 
             async for stream_mode, data in agent.astream(
                 {"messages": messages},
@@ -143,7 +134,7 @@ async def main():
                 stream_mode=["messages", "updates"],
                 tool_choice="auto",
                 # debug=True,
-                subgraph=True
+                subgraph=True,
             ):
                 if stream_mode == "messages":
                     token, metadata = data
