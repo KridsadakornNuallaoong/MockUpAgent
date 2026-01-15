@@ -63,8 +63,9 @@ today is : {get_current_time.run("")}
 # TODO: Create agent state for maintaining context
 agent = create_deep_agent(
     model=llm,
-    # tools=tools,
+    tools=tools,
     system_prompt=research_instructions,
+    subagents=[research_sub_agent],
 )
 
 # TODO: RunnableConfig for threading

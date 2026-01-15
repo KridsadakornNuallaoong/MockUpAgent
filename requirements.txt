@@ -21,6 +21,8 @@ pyautogui
 # vector database clients
 qdrant-client
 langchain-qdrant
+langchain-community
+pypdf
 
 markdownify
 deepagents

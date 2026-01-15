@@ -60,7 +60,6 @@ async def main():
         ]
     )
     
-    load_dotenv(".env")
 
     # TODO: Load system prompt from file
     prompt_path = "./prompts"
@@ -138,6 +137,7 @@ async def main():
             ):
                 if stream_mode == "messages":
                     token, metadata = data
+                    print(data.items())
                     if tags := metadata.get("model", []):  
                         this_agent = tags[0]  
                         if this_agent != current_agent:  
@@ -156,4 +156,5 @@ async def main():
             break
 
 if __name__ == "__main__":
+    load_dotenv(".env")
     asyncio.run(main())

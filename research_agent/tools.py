@@ -24,7 +24,7 @@ def fetch_webpage_content(url: str, timeout: float = 10.0) -> str:
         Webpage content as markdown
     """
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0"
     }
 
     try:
@@ -38,10 +38,12 @@ def fetch_webpage_content(url: str, timeout: float = 10.0) -> str:
 @tool
 def tavily_search(
     query: str,
-    max_results: Annotated[int, InjectedToolArg] = 1,
+    # max_results: Annotated[int, InjectedToolArg] = 1,
     topic: Annotated[
         Literal["general", "news", "finance"], InjectedToolArg
     ] = "general",
+    include_answer: Annotated[Literal["none", "basic", "advanced"], InjectedToolArg] = "basic",
+    search_depth: Annotated[Literal["basic", "advanced", "fast", "ultra-fast"], InjectedToolArg] = "advanced",
 ) -> str:
     """Search the web for information on a given query.
 
@@ -57,9 +59,11 @@ def tavily_search(
     """
     # Use Tavily to discover URLs
     search_results = tavily_client.search(
-        query,
-        max_results=max_results,
+        query=query,
+        max_results=10,
         topic=topic,
+        include_answer=include_answer,
+        search_depth=search_depth,
     )
 
     # Fetch full content for each URL
@@ -83,7 +87,7 @@ def tavily_search(
     # Format final response
     response = f"""🔍 Found {len(result_texts)} result(s) for '{query}':
 
-{chr(10).join(result_texts)}"""
+    {chr(10).join(result_texts)}"""
 
     return response
 
