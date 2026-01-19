@@ -187,3 +187,4 @@ cache
 prompts/system.txt
 
 output*.md
+.vscode/

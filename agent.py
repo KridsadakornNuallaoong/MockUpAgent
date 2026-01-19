@@ -136,7 +136,7 @@ async def main():
             ):
                 if stream_mode == "messages":
                     token, metadata = data
-                    print(data.items())
+                    # print(data.items())
                     if tags := metadata.get("model", []):  
                         this_agent = tags[0]  
                         if this_agent != current_agent:  
