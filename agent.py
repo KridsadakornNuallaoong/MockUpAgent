@@ -14,7 +14,6 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.store.memory import InMemoryStore
 
-from mcp_cli import load_tools
 from model.ollama.custom_model_01 import llm
 from research_agent.prompts import (RESEARCH_WORKFLOW_INSTRUCTIONS,
                                     RESEARCHER_INSTRUCTIONS,
@@ -38,7 +37,7 @@ async def main():
         registry = json.load(f)
 
     mcp_client = MultiServerMCPClient(
-        registry['registry']
+        registry['mcpServers']
     )
 
     tools = await mcp_client.get_tools()
@@ -137,7 +136,7 @@ async def main():
             ):
                 if stream_mode == "messages":
                     token, metadata = data
-                    print(data.items())
+                    # print(data.items())
                     if tags := metadata.get("model", []):  
                         this_agent = tags[0]  
                         if this_agent != current_agent:  

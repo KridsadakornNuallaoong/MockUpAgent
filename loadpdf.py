@@ -20,3 +20,5 @@ if __name__ == "__main__":
         print(f"--- Page {i+1} ---")
         print(doc.page_content)
         print("\n")
+
+    # print("—"*10)

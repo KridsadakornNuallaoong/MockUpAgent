@@ -1,0 +1,41 @@
+# TODO: Not done yet: Add volume to persist output files
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent-deployment
+spec:
+  selector:
+    matchLabels:
+      app: agent_replica
+  template:
+    metadata:
+      labels:
+        app: agent_replica
+    spec:
+      containers:
+      - name: agent-replica
+        image: test_replica:latest
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: output-volume
+          mountPath: /app/output
+      volumes:
+      - name: output-volume
+        hostPath:
+          path: ./output
+          type: Directory
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent-service
+spec:
+  selector:
+    app: agent_replica
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP
