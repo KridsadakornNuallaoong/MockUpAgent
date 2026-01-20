@@ -77,6 +77,32 @@ class AgentModel:
             {"messages": [("user", input_text)]},
             config=self.config,
         )
+    
+    def stream(self, messages: str, path_output="output_stream", verbose: bool = True, debug: bool = False):
+        time = now_isoformat()
+        for stream_mode, data in self._get_agent().stream(
+                {"messages": messages},
+                config=self.config,
+                stream_mode=["messages", "updates"],
+                tool_choice="auto",
+                debug=debug,
+                subgraph=True,
+            ):
+                if stream_mode == "messages":
+                    token, metadata = data
+                    if tags := metadata.get("model", []):  
+                        this_agent = tags[0]  
+                        if this_agent != current_agent:  
+                            print(f"🤖 {this_agent}: ")  
+                            current_agent = this_agent  
+                    if isinstance(token, AIMessageChunk):
+                        # print("Rendering message chunk...")
+                        _render_message_chunk(token, time, path_output, verbose)
+                if stream_mode == "updates":
+                    for source, update in data.items():
+                        if source in ("model", "tools"):
+                            # print("Rendering completed message...")
+                            _render_completed_message(update["messages"][-1], verbose)
 
     async def astream(self, messages: str, path_output="output_stream", verbose: bool = True, debug: bool = False):
         time = now_isoformat()

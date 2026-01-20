@@ -18,8 +18,25 @@ from mcp.client.stdio import stdio_client
 from agent_model import AgentModel
 from mcp import ClientSession, StdioServerParameters
 from mcp_hub.mcphub import McpHub, McpServerConfig
+# from model.hf.custom_model_01 import llm
 from model.ollama.custom_model_01 import llm
 from tools.time_tools import get_current_time
+
+skills_dir = "./skills"
+
+@tool("load_skills", description="Load skills from a given MCP server. Available skills can be listed using the 'list_skills' tool.")
+def load_skills(skills_name: str) -> str:
+    """
+    Load skills from a given MCP server.
+    Available skills can be listed using the 'list_skills' tool.
+    - agent: Core skills and capabilities of the agent system
+
+    returns: A message indicating the result of the operation.
+    """
+    skills = os.open(os.path.join(skills_dir, f"{skills_name}/skills.md"), os.O_RDONLY)
+    with os.fdopen(skills, 'r') as f:
+        skill_content = f.read()
+    return skill_content
 
 
 def printt(title: str, symbol: str = "—", size: int = -1):
@@ -148,15 +165,38 @@ async def main():
 
     # print("tools: ", )
     tools = await load_mcp_tools(session)
-    print("tools from Docker MCP: ", tools)
-    agent = AgentModel(model=llm, tools=tools, system_prompt_content="You are a helpful assistant. always checking your tools.")
+    tools.extend([load_skills])
+    # print("tools from Docker MCP: ", tools)
+    # llm.bind_tools(tools)
+    agent = AgentModel(
+        model=llm,
+        tools=tools, 
+        system_prompt_content="You are a helpful assistant apply suitability skills. always checking your tools.")
     print("now agentic tools: ", agent.list_tools())
     messages = "please use tools fetch to get https://www.example.com and tell me the title of the page."
     try:
-        await agent.astream(messages, path_output="./output")
+        agent.stream(messages, path_output="./output")
     except Exception as e:
         print(f"Error during agent execution: {e}")
     await mcp_hub.close()
+
+    # proc = subprocess.Popen(
+    #     # ollama run qwen3-embedding "hello"
+    #     ["ollama", "run", "qwen3-embedding", "helloworld"],
+    #     stdin=subprocess.PIPE,
+    #     stdout=subprocess.PIPE,
+    #     stderr=subprocess.PIPE,
+    # )
+
+    # stdout, stderr = proc.communicate()
+    # print("STDOUT:", stdout.decode())
+    # print("STDERR:", stderr.decode())
+
+    # # response is "[0.029710542,0.013108845,-0.018897865,-0.045694247,...]" change to list of floats
+    # embedding_str = stdout.decode().strip()
+    # embedding = json.loads(embedding_str)
+    # print("Embedding:", embedding)
+    # print("Embedding Length:", len(embedding))
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -27,3 +27,5 @@ pypdf
 markdownify
 deepagents
 tavily-python
+
+# langchain langchain-huggingface transformers accelerate gradio uvicorn fastapi huggingface_hub mcp fastapi-mcp hf_xet langchain-ollama ollama langchain-mcp-adapters langchain-core google-genai pyautogui qdrant-client langchain-qdrant langchain-community pypdf markdownify deepagents tavily-python

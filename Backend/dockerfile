@@ -14,6 +14,9 @@ RUN uv sync --frozen
 # Copy application code
 COPY . .
 
+# Install Docker CLI
+RUN apt-get update && apt-get install -y docker.io
+
 # Expose port (adjust as needed)
 EXPOSE 8000
 

@@ -94,4 +94,4 @@ async def mcp_config(payload: dict):
 
 if __name__ == "__main__":
     docker_mcp_server.set_servers(["fetch"])
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
