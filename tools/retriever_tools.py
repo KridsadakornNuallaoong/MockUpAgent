@@ -15,6 +15,20 @@ class filter_type(BaseModel):
 
 filter = filter_type(key="metadata.page", value=1)
 
+@tool("list_collections", description="List all available collections in the vector store.")
+def list_collections() -> list[str]:
+    """
+    List all available collections in the vector store.
+    Returns:
+        list[str]: A list of collection names.
+    """
+    try:
+        collections = vector_store.client.get_collections().collections
+        collection_names = [collection.name for collection in collections]
+        return collection_names
+    except Exception as e:
+        return [f"Error retrieving collections: {str(e)}"]
+
 @tool(
     "semantic_search",
     description="""
