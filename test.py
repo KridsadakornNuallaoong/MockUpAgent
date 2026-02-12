@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
+from langchain.messages import HumanMessage, ImageContentBlock
 from langchain.tools import BaseTool, tool
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_mcp_adapters.sessions import (Connection, StdioConnection,
@@ -14,6 +15,8 @@ from langchain_mcp_adapters.sessions import (Connection, StdioConnection,
 from langchain_mcp_adapters.tools import _list_all_tools, load_mcp_tools
 from langgraph.config import RunnableConfig
 from mcp.client.stdio import stdio_client
+from PIL import Image
+from pyexpat.errors import messages
 
 from agent_model import AgentModel
 from mcp import ClientSession, StdioServerParameters
@@ -82,13 +85,49 @@ from contextlib import AsyncExitStack
 from dataclasses import dataclass
 from typing import Any
 
+import climage
 from langchain_mcp_adapters.tools import load_mcp_tools
 from mcp.client.stdio import stdio_client
+from PIL import Image
+from rich.console import Console
 
 from mcp import ClientSession, StdioServerParameters
 
 
 async def main():
+    printt("Starting Agent Model Tests with qwen3-vl model")
+    agent_model = AgentModel(model=llm, tools=[], system_prompt_content="")
+    "You are an advanced vision AI assistant specializing in image analysis. Analyze images with precision, extracting text, identifying objects, understanding layouts, and describing visual content in detail. Provide clear, structured responses. When requested, translate content to the specified language."
+    messages = "Please analyze the following image and provide insights about its content."
+    # print("now agentic tools: ", agent_model.list_tools())
+    
+    # Download the image first
+    import urllib.request
+
+    # image_url = "https://science.nasa.gov/wp-content/uploads/2023/09/stsci-01g8jzq6gwxhex15pyy60wdrsk-2.png"
+    # image_url = "https://i.pinimg.com/736x/50/11/46/501146c1c712a0dc20faf530df7ecb82.jpg"
+    image_path = "./temp_image.png"
+    # urllib.request.urlretrieve(image_url, image_path)
+    # Display the image as ASCII in the terminal
+    ascii_art = climage.convert(image_path, is_unicode=True)
+    print(ascii_art)
+
+    human_message = HumanMessage(
+        content_blocks=[
+            {"type": "text", "text": "Please analyze the following image and provide insights about its content."},
+            {"type": "image_url", "image_url": {"url": image_path}},   
+        ])
+    # print("Constructed HumanMessage: ", human_message)
+    await agent_model.astream(human_message, path_output="./output")
+    printt("Complete Agent Model Test.")
+
+    # printt("Starting Agent Model Test with huggingface model")
+    # agent_model = AgentModel(model=llm, tools=[], system_prompt_content="You are a helpful assistant. always checking your tools.")
+    # messages = "please tell me current time."
+    # print("now agentic tools: ", agent_model.list_tools())
+    # await agent_model.astream(messages, path_output="./output")
+    # printt("Complete Agent Model Test.")
+
     # printt("Starting Agent Model Test with out tools")
     # agent_model = AgentModel(model=llm, tools=[], system_prompt_content="You are a helpful assistant. always checking your tools.")
     # messages = "please tell me current time."
@@ -155,30 +194,33 @@ async def main():
     #     printt("Test completed with Docker MCP Tools")
     # finally:
     #     await mcp_hub.close()
-    mcp_config = McpServerConfig(
-        name="docker_mcp",
-        command="docker",
-        args=["mcp", "gateway", "run", "--servers=fetch,playwright,time"],
-    )
-    mcp_hub = McpHub()
-    session: ClientSession = await mcp_hub.connect(mcp_config)
 
-    # print("tools: ", )
-    tools = await load_mcp_tools(session)
-    tools.extend([load_skills])
-    # print("tools from Docker MCP: ", tools)
-    # llm.bind_tools(tools)
-    agent = AgentModel(
-        model=llm,
-        tools=tools, 
-        system_prompt_content="You are a helpful assistant apply suitability skills. always checking your tools.")
-    print("now agentic tools: ", agent.list_tools())
-    messages = "please use tools fetch to get https://www.example.com and tell me the title of the page."
-    try:
-        agent.stream(messages, path_output="./output")
-    except Exception as e:
-        print(f"Error during agent execution: {e}")
-    await mcp_hub.close()
+    # mcp_config = McpServerConfig(
+    #     name="docker_mcp",
+    #     command="docker",
+    #     args=["mcp", "gateway", "run", "--servers=fetch,playwright,time"],
+    # )
+    # mcp_hub = McpHub()
+    # session: ClientSession = await mcp_hub.connect(mcp_config)
+
+    # # print("tools: ", )
+    # tools = await load_mcp_tools(session)
+    # tools.extend([load_skills])
+    # agent = AgentModel(
+    #     model=llm,
+    #     tools=tools,
+    #     system_prompt_content="You are a helpful assistant. always checking your tools.")
+    # print("now agentic tools: ", agent.list_tools())
+    # try:
+    #     while True:
+    #         input_text = input("Enter your message (or 'exit' to quit): ")
+    #         if input_text.lower() == 'exit':
+    #             break
+    #         messages = HumanMessage(content=input_text)
+    #         await agent.astream(messages, path_output="./output")
+    # except Exception as e:
+    #     print(f"Error during agent execution: {e}")
+    # await mcp_hub.close()
 
     # proc = subprocess.Popen(
     #     # ollama run qwen3-embedding "hello"

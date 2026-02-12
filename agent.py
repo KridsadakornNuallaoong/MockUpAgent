@@ -36,11 +36,12 @@ async def main():
     with open(registry_file, "r") as f:
         registry = json.load(f)
 
-    mcp_client = MultiServerMCPClient(
-        registry['mcpServers']
-    )
+    # mcp_client = MultiServerMCPClient(
+    #     registry['mcpServers']
+    # )
 
-    tools = await mcp_client.get_tools()
+    # tools = await mcp_client.get_tools()
+    tools = []
     tools.extend(
         [
             get_current_time,
@@ -52,7 +53,7 @@ async def main():
             multiply_two_numbers,
             divide_two_numbers,
             dir_list,
-            tavily_search,
+            # tavily_search,
             think_tool,
             semantic_search,
             get_weather,

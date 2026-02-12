@@ -13,12 +13,11 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.checkpoint.memory import InMemorySaver as Checkpointer
 from langgraph.store.memory import InMemoryStore as Store
 
-from utils.stream.context_decoder import (_arender_server_completed_message,
-                                          _arender_server_message_chunk,
-                                          _render_completed_message,
-                                          _render_message_chunk,
-                                          _render_server_completed_message,
-                                          _render_server_message_chunk)
+from utils.stream.context_decoder import (
+    _arender_server_completed_message_chunk, _arender_server_message_chunk,
+    _render_completed_message, _render_completed_message_chunk,
+    _render_message, _render_message_chunk,
+    _render_server_completed_message_chunk, _render_server_message_chunk)
 
 
 def now_isoformat():
@@ -97,7 +96,7 @@ class AgentModel:
                             current_agent = this_agent  
                     if isinstance(token, AIMessageChunk):
                         # print("Rendering message chunk...")
-                        _render_message_chunk(token, time, path_output, verbose)
+                        _render_message(token, time, path_output, verbose)
                 if stream_mode == "updates":
                     for source, update in data.items():
                         if source in ("model", "tools"):
@@ -128,7 +127,7 @@ class AgentModel:
                     for source, update in data.items():
                         if source in ("model", "tools"):
                             # print("Rendering completed message...")
-                            _render_completed_message(update["messages"][-1], verbose)
+                            _render_completed_message_chunk(update["messages"][-1], verbose)
 
     def stream_server_render(self, messages: str, path_output="output_stream", verbose: bool = True, debug: bool = False):
         time = now_isoformat()
@@ -155,7 +154,7 @@ class AgentModel:
                     for source, update in data.items():
                         if source in ("model", "tools"):
                             # print("Rendering completed message...")
-                            for chunk in _render_server_completed_message(update["messages"][-1], verbose):
+                            for chunk in _render_server_completed_message_chunk(update["messages"][-1], verbose):
                                 yield f'{chunk}'
     
     async def astream_server_render(self, messages: str, path_output="output_stream", verbose: bool = True, debug: bool = False):
@@ -183,5 +182,5 @@ class AgentModel:
                     for source, update in data.items():
                         if source in ("model", "tools"):
                             # print("Rendering completed message...")
-                            async for chunk in _arender_server_completed_message(update["messages"][-1], verbose):
+                            async for chunk in _arender_server_completed_message_chunk(update["messages"][-1], verbose):
                                 yield f'{chunk}'

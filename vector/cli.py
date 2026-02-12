@@ -15,7 +15,7 @@ qdrant = QdrantVectorStore.from_documents(
     embeddings,
     url=url,
     prefer_grpc=True,
-    collection_name="AgentRagCollection",
+    collection_name="test_collection",
 )
 
 vector_store = qdrant
